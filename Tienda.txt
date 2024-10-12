@@ -1,0 +1,136 @@
+Ejecutar esta consulta
+
+CREATE TABLE IF NOT EXISTS `t_productos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` int(1) NOT NULL,
+  `precio` int(4) NOT NULL,
+  `obj` int(5) NOT NULL DEFAULT '0',
+  `obj_2` int(5) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+
+En c.user.php --> inc --> class --> c.user.php
+Buscar:
+// NOMBRE
+ $this->nick = $this->info['user_name'];
+ $this->uid = $this->info['user_id'];
+        $this->is_banned = $this->info['user_baneado']; 
+
+
+Debajo agregar:
+
+$this->puntos = $this->info['user_puntos']; 
+
+
+En admin.php --> inc --> php --> admin.php
+Buscar:
+
+} elseif($action == 'configs'){
+ // GUARDAR CONFIGURACION
+ if(!empty($_POST['titulo'])) {
+ if($tsAdmin->saveConfig()) $tsCore->redirectTo($tsCore->settings['url'].'/admin/configs?save=true');
+ } 
+
+
+Debajo agregar:
+
+/** TIENDA **/
+   } elseif($action == 'tienda'){
+   include('../class/c.tienda.php');
+   $tsTienda = new tsTienda;
+        if(empty($act)){
+ $productos = $tsTienda->getProductos();
+ if(is_array($productos))
+ $smarty->assign("tsProductos", $productos); 
+ else
+ $smarty->assign("tsError", $productos); 
+ }elseif($act == 'nuevo' && !empty($_POST['type'])){
+ $producto = $tsTienda->nuevoProducto();
+            if($producto == 1) 
+ $tsCore->redirectTo($tsCore->settings['url'].'/admin/tienda?save=true');
+ else
+   $smarty->assign("tsError", $producto); 
+        } elseif($act == 'editar'){
+            if(!empty($_POST['type'])){
+ $producto = $tsTienda->editProducto((int)$_GET['id']);
+ if($producto == 1) 
+ $tsCore->redirectTo($tsCore->settings['url'].'/admin/tienda?save=true');
+ else{
+   $smarty->assign("tsError", $producto);      
+ $producto = $tsTienda->getProducto((int)$_GET['id']);
+ if(is_array($producto))
+ $smarty->assign("tsProducto",$producto);
+ else
+     $smarty->assign("tsError", $producto); 
+ }
+ } else{
+ $producto = $tsTienda->getProducto((int)$_GET['id']);
+ if(is_array($producto))
+ $smarty->assign("tsProducto",$producto);
+ else
+     $smarty->assign("tsError", $producto); 
+ }
+        }  elseif($act == 'borrar'){
+ $producto = $tsTienda->delProducto();
+          if($producto == 1)
+   $tsCore->redirectTo($tsCore->settings['url'].'/admin/tienda?save=true');
+   else
+   $smarty->assign("tsError", $producto); 
+ } 
+
+
+En t.admin.tpl --> themes --> default --> templates --> t.admin.tpl
+Buscar:
+
+{elseif $tsAction == 'rangos'}
+                            {include file='admin_mods/m.admin_rangos.tpl'} 
+
+
+
+Debajo agregar:
+
+
+{elseif $tsAction == 'tienda'}
+                                {include file='admin_mods/m.admin_tienda.tpl'} 
+
+
+En m.admin_sidemenu.tpl --> themes --> default --> templates --> admin_mods --> m.admin_sidemenu.tpl
+
+Buscar:
+
+<li id="a_cats"><span class="cat-title"><a href="{$tsConfig.url}/admin/cats">Categor&iacute;as</a></span></li> 
+
+
+Debajo agregar:
+
+<li id="a_ads"><span class="cat-title"><a href="{$tsConfig.url}/admin/tienda">Tienda</a></span></li> 
+
+
+
+En head_menu.tpl --> themes --> default --> templates --> sections --> head_menu.tpl
+
+Default
+Buscar:
+
+<li class="tabbed {if $tsPage == 'tops'}here{/if}" id="tabbedtops">
+                    <a title="Ir a TOPs" onclick="menu('tops', this.href); return false;" href="{$tsConfig.url}/top/">TOPs <img alt="Drop Down" src="{$tsConfig.tema.t_url}/images/arrowdown.png"></a>
+                </li> 
+
+
+Debajo agregar:
+
+<li class="tabbed {if $tsPage == 'tienda'}here{/if}" id="tabbedtops">
+                    <a title="Ir a Tienda" onclick="menu('tops', this.href); return false;" href="{$tsConfig.url}/tienda/">Tienda <img alt="Drop Down" src="{$tsConfig.tema.t_url}/images/arrowdown.png"></a>
+                </li> 
+
+
+
+
+
+
+
+
+
+
+
